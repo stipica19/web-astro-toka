@@ -1,6 +1,13 @@
 ---
-import { MapPin, Phone, Mail } from "@lucide/astro";
-import { site, fullAddress } from "../../lib/site";
+import {
+  ArrowUp,
+  ArrowUpRight,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "@lucide/astro";
+import { site, mapsLink, whatsappLink } from "../../lib/site";
 
 interface Props {
   categories: Array<{ name: string; slug: string }>;
@@ -8,34 +15,100 @@ interface Props {
 
 const { categories } = Astro.props;
 const currentYear = new Date().getFullYear();
+
+// Isti stepen kao `eyebrow` u sekcijama, ali u svjetlijem zlatu — gold-dark
+// nema dovoljan kontrast na tamnoj podlozi.
+const labelClass = "uppercase tracking-[0.18em] text-gold";
+
+// Ikone kontakta stoje u istoj kutijici; klasa se ponavlja tri puta pa je izdvojena.
+const iconBoxClass =
+  "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-cream/10 bg-cream/5 text-gold";
 ---
 
-<footer class="border-t border-line bg-cream">
-  <div class="mx-auto max-w-6xl px-5 py-16">
-    <div class="grid gap-12 lg:grid-cols-[1fr_1fr_1fr]">
-      <div>
+{
+  /*
+    Footer je taman namjerno: stranica počinje tamnim hero blokom i završava
+    istim tonom, pa je sve između (krem i bijele sekcije) uokvireno. Kao
+    nuspojava, logo.png — bijeli znak na prozirnoj podlozi — ovdje stoji
+    bez `invert` filtera koji mu treba u svijetlom headeru.
+  */
+}
+<footer class="relative isolate overflow-hidden bg-ink text-cream">
+  {/* Zlatna nit umjesto obične linije — isti motiv kao oznaka u herou. */}
+  <div
+    aria-hidden="true"
+    class="h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent"
+  >
+  </div>
+
+  {/* Topli sjaj daje dubinu ravnoj tamnoj podlozi. */}
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute -left-40 -top-48 -z-10 size-[32rem] rounded-full bg-gold/10 blur-[120px]"
+  >
+  </div>
+
+  <div class="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+    {/*
+      Kolone nisu jednake: brend nosi blok, kategorije su najduža lista pa
+      dobijaju najviše prostora (i dvije podkolone), kontakt je najuži.
+    */}
+    <div class="grid gap-x-10 gap-y-14 md:grid-cols-2 lg:grid-cols-12">
+      <div class="lg:col-span-4">
         <img
           src="/logo.png"
           alt={site.name}
           width="257"
           height="92"
-          class="h-7 w-auto invert sm:h-8"
+          class="h-8 w-auto sm:h-9"
           decoding="async"
         />
-        <p class="mt-4 max-w-xs text-ink-soft">{site.description}</p>
+
+        <p class="mt-6 max-w-xs text-cream/70">{site.description}</p>
+
+        <p
+          class="mt-6 inline-flex items-center gap-2.5 rounded-full border border-cream/15 py-1.5 pl-3 pr-4 text-cream/75"
+        >
+          <span aria-hidden="true" class="size-1.5 rounded-full bg-gold"></span>
+          Porodična radionica od {site.foundedYear}.
+        </p>
+
+        <div class="mt-7">
+          <a
+            href={whatsappLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-full border border-cream/25 px-6 py-3 font-medium text-cream transition-colors hover:border-gold/60 hover:bg-gold/10 hover:text-gold"
+          >
+            <MessageCircle class="size-5" aria-hidden="true" />
+            Pošaljite upit
+          </a>
+          <p class="mt-3 text-cream/60">Odgovaramo u roku od 24 sata.</p>
+        </div>
       </div>
 
-      <nav aria-labelledby="footer-kategorije">
-        <p id="footer-kategorije" class="eyebrow">Kategorije</p>
-        <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+      <nav class="lg:col-span-5" aria-labelledby="footer-kategorije">
+        <p id="footer-kategorije" class={labelClass}>Kategorije</p>
+
+        <ul class="mt-6 sm:columns-2 sm:gap-8">
           {
             categories.map((category) => (
-              <li>
+              <li class="break-inside-avoid">
+                {/*
+                  Crtica koja izraste na hover pomjera naziv udesno — pokazuje
+                  koji je red aktivan bez podvlačenja i bez ijedne linije JS-a.
+                */}
                 <a
                   href={`/kategorija/${category.slug}`}
-                  class="text-ink-soft transition-colors hover:text-gold-dark"
+                  class="group flex items-start py-2 text-cream/70 transition-colors hover:text-gold sm:py-1.5"
                 >
-                  {category.name}
+                  <span
+                    aria-hidden="true"
+                    class="mt-3.5 h-px w-0 shrink-0 bg-gold transition-[width] duration-300 group-hover:w-4"
+                  />
+                  <span class="transition-[margin] duration-300 group-hover:ml-2">
+                    {category.name}
+                  </span>
                 </a>
               </li>
             ))
@@ -43,50 +116,84 @@ const currentYear = new Date().getFullYear();
         </ul>
       </nav>
 
-      <div>
-        <p class="eyebrow">Kontakt</p>
+      <div class="lg:col-span-3">
+        <p class={labelClass}>Kontakt</p>
+
         {
           /* Isti NAP kao u JSON-LD strukturiranim podacima i na Google profilu. */
         }
-        <address class="mt-4 space-y-3 not-italic text-ink-soft">
-          <p class="flex items-start gap-2.5">
-            <MapPin
-              class="mt-1 size-5 shrink-0 text-gold-dark"
-              aria-hidden="true"
-            />
-            <span>{fullAddress}</span>
-          </p>
-          <p class="flex items-start gap-2.5">
-            <Phone
-              class="mt-1 size-5 shrink-0 text-gold-dark"
-              aria-hidden="true"
-            />
+        <address class="mt-6 space-y-5 not-italic">
+          <div class="flex gap-3">
+            <span class={iconBoxClass}>
+              <MapPin class="size-[18px]" aria-hidden="true" />
+            </span>
+            <div>
+              <p class="text-cream/70">
+                {site.address.street}<br />
+                {`${site.address.postalCode} ${site.address.city}`}<br />
+                {site.address.country}
+              </p>
+              <a
+                href={mapsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group mt-2 inline-flex items-center gap-1 text-gold transition-colors hover:text-cream"
+              >
+                Prikaži na mapi
+                <ArrowUpRight
+                  class="size-4 transition-transform duration-300 motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </a>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <span class={iconBoxClass}>
+              <Phone class="size-[18px]" aria-hidden="true" />
+            </span>
             <a
               href={`tel:${site.phoneRaw}`}
-              class="transition-colors hover:text-gold-dark"
+              class="pt-1 text-cream/70 transition-colors hover:text-gold"
             >
               {site.phone}
             </a>
-          </p>
-          <p class="flex items-start gap-2.5">
-            <Mail
-              class="mt-1 size-5 shrink-0 text-gold-dark"
-              aria-hidden="true"
-            />
+          </div>
+
+          <div class="flex gap-3">
+            <span class={iconBoxClass}>
+              <Mail class="size-[18px]" aria-hidden="true" />
+            </span>
             <a
               href={`mailto:${site.email}`}
-              class="transition-colors hover:text-gold-dark"
+              class="pt-1 break-all text-cream/70 transition-colors hover:text-gold"
             >
               {site.email}
             </a>
-          </p>
+          </div>
         </address>
       </div>
     </div>
 
-    <p class="mt-12 border-t border-line pt-6 text-ink-soft">
-      © {currentYear}
-      {site.legalName}. Sva prava zadržana.
-    </p>
+    <div
+      class="mt-14 flex flex-col gap-5 border-t border-cream/10 pt-7 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p class="text-cream/60">
+        {`© ${currentYear} ${site.legalName}. Sva prava zadržana.`}
+      </p>
+
+      {/* Sidro umjesto skripte — `scroll-behavior: smooth` je već u global.css. */}
+      <a
+        href="#sadrzaj"
+        class="group inline-flex items-center gap-3 self-start text-cream/60 transition-colors hover:text-gold"
+      >
+        Nazad na vrh
+        <span
+          class="flex size-9 items-center justify-center rounded-full border border-cream/15 transition duration-300 group-hover:border-gold/50 motion-safe:group-hover:-translate-y-0.5"
+        >
+          <ArrowUp class="size-4" aria-hidden="true" />
+        </span>
+      </a>
+    </div>
   </div>
 </footer>

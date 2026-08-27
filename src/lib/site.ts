@@ -31,6 +31,14 @@ export const site = {
 export const fullAddress = `${site.address.street}, ${site.address.postalCode} ${site.address.city}, ${site.address.country}`;
 
 /**
+ * Google Maps pretraga po nazivu i adresi radionice — bez ugrađene mape,
+ * pa javne stranice ostaju bez skripti trećih strana.
+ */
+export const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `${site.legalName}, ${fullAddress}`,
+)}`;
+
+/**
  * WhatsApp link sa unaprijed popunjenom porukom.
  * Kad se zove sa stranice kategorije, poruka već sadrži naziv kategorije
  * pa klijent odmah zna na šta se upit odnosi.
