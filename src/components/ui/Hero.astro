@@ -1,0 +1,142 @@
+---
+import { ArrowRight, MessageCircle, Sparkles } from "@lucide/astro";
+
+import { site, whatsappLink } from "../../lib/site";
+
+const heroImage =
+  "https://toka.ba/wp-content/uploads/2023/01/Laser-Cutting-2-1.jpg";
+---
+
+<section
+  class="relative isolate min-h-[680px] overflow-hidden bg-ink text-white sm:min-h-[740px]"
+>
+  <!-- Background image -->
+  <div class="absolute inset-0 -z-20">
+    {
+      /* `-scale-x-100` zrcali sliku horizontalno — kadar ostaje isti, samo se
+        okrene lijevo-desno. */
+    }
+    <img
+      src={heroImage}
+      alt=""
+      class="h-full w-full -scale-x-100 object-cover object-center"
+      loading="eager"
+    />
+  </div>
+
+  <!-- Dark overlays -->
+  <!-- Subtle image overlay -->
+  <div
+    class="absolute inset-0 -z-10 bg-gradient-to-r from-ink/90 via-ink/35 to-transparent"
+  >
+  </div>
+
+  <div
+    class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/80 via-transparent to-transparent"
+  >
+  </div>
+
+  <!-- Decorative gold glow -->
+  <div
+    class="pointer-events-none absolute -right-32 top-1/2 -z-10 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-gold/10 blur-[120px]"
+  >
+  </div>
+
+  <!-- Decorative lines -->
+  <div
+    class="pointer-events-none absolute inset-y-0 left-8 hidden w-px bg-cream/10 lg:block"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute inset-y-0 right-8 hidden w-px bg-cream/10 lg:block"
+  >
+  </div>
+
+  <div
+    class="mx-auto flex min-h-[680px] max-w-7xl items-center px-6 py-24 sm:min-h-[740px] lg:px-12"
+  >
+    <div class="max-w-4xl">
+      <!-- Small label -->
+      <div class="mb-7 flex items-center gap-3">
+        <span class="h-px w-10 bg-gold"></span>
+
+        <p class="text-sm font-medium uppercase tracking-[0.25em] text-gold">
+          {site.tagline}
+        </p>
+
+        <Sparkles class="size-4 text-gold" aria-hidden="true" />
+      </div>
+
+      <!-- Main heading -->
+      <h1
+        class="max-w-4xl text-5xl font-medium uppercase leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl"
+      >
+        Vaše ime, logo ili poruka
+        <span class="text-gold">—</span>
+        urezani da traju.
+      </h1>
+
+      <!-- Description -->
+      <p
+        class="mt-8 max-w-2xl text-base leading-7 text-white sm:text-lg sm:leading-8"
+      >
+        Plakete, priznanja, pokloni i suveniri po mjeri. Ručna izrada i lasersko
+        graviranje metala, drveta i akrilnog stakla.
+      </p>
+
+      <!-- CTA -->
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+        <a
+          href={whatsappLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 font-medium text-ink transition-all duration-300 hover:bg-gold-dark hover:shadow-[0_0_35px_rgba(212,175,55,0.25)]"
+        >
+          <MessageCircle
+            class="size-5 transition-transform duration-300 group-hover:scale-110"
+            aria-hidden="true"
+          />
+
+          Pošalji upit na WhatsApp
+        </a>
+
+        <a
+          href="#kategorije"
+          class="group inline-flex items-center justify-center gap-2 rounded-full border border-cream/30 bg-ink/20 px-7 py-4 font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-gold/60 hover:bg-cream/10"
+        >
+          Pogledaj ponudu
+
+          <ArrowRight
+            class="size-5 transition-transform duration-300 group-hover:translate-x-1"
+            aria-hidden="true"
+          />
+        </a>
+      </div>
+
+      <!-- Bottom information -->
+      <div
+        class="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-white"
+      >
+        <div class="flex items-center gap-2">
+          <span class="size-1.5 rounded-full bg-gold"></span>
+          Ručna izrada
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="size-1.5 rounded-full bg-gold"></span>
+          Lasersko graviranje
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="size-1.5 rounded-full bg-gold"></span>
+          Izrada po mjeri
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="size-1.5 rounded-full bg-gold"></span>
+          Od {site.foundedYear}.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

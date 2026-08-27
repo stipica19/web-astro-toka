@@ -1,0 +1,88 @@
+---
+/**
+ * Slika kategorije preko Cloudinaryja, s rezervisanim prostorom.
+ *
+ * Prostor se rezerviše kroz `aspect-ratio` + `width`/`height` atribute, pa
+ * učitavanje slike ne pomjera layout (Core Web Vitals: CLS).
+ *
+ * Kategorije kojima slika još nije dodijeljena imaju placeholder public_id i
+ * dobijaju neutralno polje istog omjera — layout je isti prije i poslije.
+ */
+import { PLACEHOLDER_IMAGE } from "../../lib/images";
+import { cloudinaryUrl, cloudinarySrcSet } from "../../lib/cloudinary";
+
+interface Props {
+  publicId: string;
+  /** Tekst za čitače ekrana; koristi se i kao inicijal na placeholderu. */
+  alt: string;
+  /** Omjer "š:v" — isti se koristi za Cloudinary kadriranje i za rezervaciju prostora. */
+  ratio?: string;
+  /** Koliko širine ekrana slika zauzima — bez ovoga browser pretpostavi 100vw i povuče preveliku sliku. */
+  sizes?: string;
+  /**
+   * Tailwind aspect klasa koja gazi `ratio` samo za prikaz (npr. drugi omjer na
+   * mobitelu). Cloudinary i dalje kadrira po `ratio`, a object-cover dokadrira
+   * razliku. Prostor ostaje rezervisan, pa nema pomjeranja layouta.
+   */
+  aspectClass?: string;
+  /**
+   * Inicijal na placeholderu. Isključuje se tamo gdje preko slike ide tekst
+   * (kartice na početnoj), jer bi se slovo naziralo iza naziva.
+   */
+  showInitial?: boolean;
+  loading?: "lazy" | "eager";
+}
+
+const {
+  publicId,
+  alt,
+  ratio = "4:3",
+  aspectClass,
+  showInitial = true,
+  sizes = "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw",
+  loading = "lazy",
+} = Astro.props;
+
+const [ratioWidth, ratioHeight] = ratio.split(":").map(Number);
+
+// Nominalne dimenzije za width/height atribute — browseru trebaju samo radi omjera.
+const nominalWidth = 800;
+const nominalHeight = Math.round((nominalWidth * ratioHeight) / ratioWidth);
+
+const hasImage = Boolean(publicId) && publicId !== PLACEHOLDER_IMAGE;
+const initial = alt.trim().charAt(0).toUpperCase();
+---
+
+{
+  hasImage ? (
+    <img
+      src={cloudinaryUrl(publicId, { width: nominalWidth, aspectRatio: ratio })}
+      srcset={cloudinarySrcSet(publicId, ratio)}
+      sizes={sizes}
+      width={nominalWidth}
+      height={nominalHeight}
+      alt={alt}
+      loading={loading}
+      fetchpriority={loading === "eager" ? "high" : undefined}
+      decoding="async"
+      class:list={["w-full object-cover", aspectClass]}
+      style={aspectClass ? undefined : `aspect-ratio: ${ratioWidth} / ${ratioHeight}`}
+    />
+  ) : (
+    <div
+      class:list={[
+        "flex w-full items-center justify-center bg-gradient-to-br from-line to-cream",
+        aspectClass,
+      ]}
+      style={aspectClass ? undefined : `aspect-ratio: ${ratioWidth} / ${ratioHeight}`}
+      role="img"
+      aria-label={`${alt} — slika još nije postavljena`}
+    >
+      {showInitial && (
+        <span class="font-display text-6xl text-ink/15" aria-hidden="true">
+          {initial}
+        </span>
+      )}
+    </div>
+  )
+}

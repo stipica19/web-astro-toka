@@ -1,0 +1,39 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/ui/Header.astro";
+import Hero from "../components/ui/Hero.astro";
+import CategoryGrid from "../components/ui/CategoryGrid.astro";
+import Values from "../components/ui/Values.astro";
+import HowWeWork from "../components/ui/HowWeWork.astro";
+import About from "../components/ui/About.astro";
+import ContactCta from "../components/ui/ContactCta.astro";
+import Footer from "../components/ui/Footer.astro";
+import { getPublishedCategoriesWithGallery } from "../lib/categories";
+import { site } from "../lib/site";
+
+// Stranica se renderuje po zahtjevu, ne u build-time. Sadržaj dolazi iz baze
+// koju klijent mijenja kroz admin — da je statična, izmjene bi se vidjele tek
+// nakon novog deploya. Uz to build tako ne treba pristup bazi, pa se Docker
+// slika može graditi u CI-ju.
+export const prerender = false;
+
+const categories = await getPublishedCategoriesWithGallery();
+---
+
+<Layout
+  title={`${site.name} - graviranje, plakete i suveniri | ${site.address.city}`}
+  description="Plakete, priznanja, pokloni i suveniri po mjeri. Ručna izrada i lasersko graviranje metala, drveta i akrilnog stakla. Bugojno, BiH."
+>
+  <Header categories={categories} />
+
+  <main id="sadrzaj">
+    <Hero />
+    <CategoryGrid categories={categories} />
+    <Values />
+    <HowWeWork />
+    <About categoryCount={categories.length} />
+    <ContactCta />
+  </main>
+
+  <Footer categories={categories} />
+</Layout>

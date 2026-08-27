@@ -1,0 +1,52 @@
+---
+import CategoryImage from "./CategoryImage.astro";
+
+interface Props {
+  name: string;
+  slug: string;
+  headerImage: string;
+  /** Prve kartice su iznad preloma, njihove slike se ne odgađaju. */
+  eager?: boolean;
+}
+
+const { name, slug, headerImage, eager = false } = Astro.props;
+
+const dialogId = `galerija-${slug}`;
+---
+
+{/*
+  Kartica je link na stranicu kategorije, a JS je nadograđuje u otvaranje modala.
+  Bez JS-a (ili na starom browseru bez <dialog>) klik i dalje vodi na podstranicu,
+  pa galerija nikad nije nedostupna.
+*/}
+<a
+  href={`/kategorija/${slug}`}
+  data-category-card
+  data-dialog={dialogId}
+  class="group relative block overflow-hidden rounded-lg focus-visible:outline-offset-4"
+>
+  <CategoryImage
+    publicId={headerImage}
+    alt={name}
+    ratio="4:3"
+    {/* Na mobitelu niže pločice (16:9) — 12 punih 4:3 kartica u jednoj koloni
+        pravi predugačku stranicu. Od `sm` naviše grid ima 2-3 kolone pa 4:3 stane. */}
+    aspectClass="aspect-[16/9] sm:aspect-[4/3]"
+    showInitial={false}
+    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
+    loading={eager ? "eager" : "lazy"}
+  />
+
+  {/* Crni overlay — zatamni sliku da bijeli tekst preko nje ostane čitljiv. */}
+  <div
+    class="absolute inset-0 bg-black/45 transition-colors duration-300 group-hover:bg-black/60"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="absolute inset-0 flex items-center justify-center p-5">
+    <h3 class="text-center font-display text-lg uppercase leading-snug tracking-wide text-white sm:text-xl lg:text-2xl">
+      {name}
+    </h3>
+  </div>
+</a>

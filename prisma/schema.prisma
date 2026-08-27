@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  /// Cloudinary public_id, ne puni URL — pravi URL i transformacije
+  /// generiše CldImage u trenutku renderovanja.
+  headerImage String
+  /// Redoslijed prikaza na početnoj; admin ga mijenja drag & dropom.
+  order       Int            @default(0)
+  /// Neobjavljena kategorija ostaje u bazi ali se ne prikazuje javno.
+  isPublished Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  gallery     GalleryImage[]
+
+  @@index([isPublished, order])
+}
+
+model GalleryImage {
+  id         String   @id @default(cuid())
+  /// Cloudinary public_id (vidi Category.headerImage).
+  url        String
+  /// Obavezan u UI-u zbog SEO-a i pristupačnosti, opcionalan u bazi radi migracije starih slika.
+  alt        String?
+  order      Int      @default(0)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, order])
+}
+
+// ---------------------------------------------------------------------------
+// Better Auth modeli.
+//
+// Generisani sa `@better-auth/cli generate` — ne uređivati ručno bez potrebe,
+// jer imena polja moraju odgovarati onome što Better Auth očekuje.
+// `@@map` mapira na mala imena tabela koja Better Auth koristi.
+//
+// Sajt ima tačno jednog admina; javna registracija je isključena u lib/auth.ts,
+// a nalog se pravi skriptom scripts/create-admin.ts.
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id        String @id
+  accountId String
+  providerId String
+
+  /// Better Auth 1.7 traži `issuer` (za lozinku: "local:credential").
+  /// Stariji `@better-auth/cli` ga ne generiše — bez njega prijava tiho pada
+  /// na "User not found", jer sign-in traži nalog po (providerId, issuer, accountId).
+  issuer String
+
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}

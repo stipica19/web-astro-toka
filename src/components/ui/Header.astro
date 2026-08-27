@@ -1,0 +1,167 @@
+---
+import { Menu, ChevronDown, MessageCircle } from "@lucide/astro";
+import { site, whatsappLink } from "../../lib/site";
+
+interface Props {
+  categories: Array<{ name: string; slug: string }>;
+}
+
+const { categories } = Astro.props;
+
+const navLinks = [
+  { label: "Početna", href: "/" },
+  { label: "O nama", href: "/#o-nama" },
+  { label: "Kontakt", href: "/#kontakt" },
+];
+---
+
+<header
+  class="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur-sm"
+>
+  <div
+    class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4"
+  >
+    <a href="/" class="shrink-0" aria-label={`${site.name} — početna`}>
+      {/*
+        logo.png je bijeli znak na prozirnoj podlozi — isti fajl koristi i
+        admin, gdje stoji na tamnom sidebaru. Header je svijetao, pa se ovdje
+        obrće filterom umjesto da se održavaju dvije verzije istog logotipa.
+
+        `width`/`height` drže omjer prije nego se slika učita, pa nema
+        pomjeranja layouta.
+      */}
+      <img
+        src="/logo.png"
+        alt={site.name}
+        width="257"
+        height="92"
+        class="h-7 w-auto invert sm:h-8"
+        decoding="async"
+      />
+    </a>
+
+    <!-- Desktop navigacija -->
+    <nav
+      class="hidden items-center gap-8 lg:flex"
+      aria-label="Glavna navigacija"
+    >
+      <a href="/" class="text-ink transition-colors hover:text-gold-dark"
+        >Početna</a
+      >
+
+      {
+        /*
+        <details> daje padajući meni bez ijedne linije JavaScripta i radi
+        tastaturom - javne stranice ostaju bez klijentskog JS-a.
+      */
+      }
+      <details class="group relative">
+        <summary
+          class="flex cursor-pointer list-none items-center gap-1 text-ink transition-colors hover:text-gold-dark"
+        >
+          Proizvodi
+          <ChevronDown
+            class="size-4 transition-transform group-open:rotate-180"
+            aria-hidden="true"
+          />
+        </summary>
+        <div
+          class="absolute right-0 top-full mt-3 w-80 rounded-lg border border-line bg-surface p-2 shadow-lg"
+        >
+          <ul>
+            {
+              categories.map((category) => (
+                <li>
+                  <a
+                    href={`/kategorija/${category.slug}`}
+                    class="block rounded-md px-3 py-2 text-ink transition-colors hover:bg-cream hover:text-gold-dark"
+                  >
+                    {category.name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </details>
+
+      {
+        navLinks.slice(1).map((link) => (
+          <a
+            href={link.href}
+            class="text-ink transition-colors hover:text-gold-dark"
+          >
+            {link.label}
+          </a>
+        ))
+      }
+
+      <a
+        href={whatsappLink()}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 font-medium text-ink transition-colors hover:bg-gold-dark"
+      >
+        <MessageCircle class="size-5" aria-hidden="true" />
+        WhatsApp
+      </a>
+    </nav>
+
+    <!-- Mobilna navigacija -->
+    <details class="group lg:hidden">
+      <summary
+        class="flex cursor-pointer list-none items-center gap-2 rounded-full border border-line px-4 py-2"
+      >
+        <Menu class="size-5" aria-hidden="true" />
+        <span>Meni</span>
+      </summary>
+      <nav
+        class="absolute inset-x-0 top-full max-h-[70vh] overflow-y-auto border-b border-line bg-surface px-5 py-4"
+        aria-label="Glavna navigacija"
+      >
+        <ul class="space-y-1">
+          {
+            navLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="block rounded-md px-3 py-2.5 text-ink hover:bg-cream"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+          <li class="pt-2">
+            <p class="eyebrow px-3 pb-1">Kategorije</p>
+            <ul>
+              {
+                categories.map((category) => (
+                  <li>
+                    <a
+                      href={`/kategorija/${category.slug}`}
+                      class="block rounded-md px-3 py-2.5 text-ink hover:bg-cream"
+                    >
+                      {category.name}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </li>
+          <li class="pt-3">
+            <a
+              href={whatsappLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-center gap-2 rounded-full bg-gold px-5 py-3 font-medium text-ink"
+            >
+              <MessageCircle class="size-5" aria-hidden="true" />
+              Pošalji upit na WhatsApp
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>

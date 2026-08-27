@@ -1,0 +1,25 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CategoryForm from "../../../components/admin/CategoryForm.tsx";
+
+export const prerender = false;
+---
+
+<AdminLayout title="Nova kategorija">
+  <a href="/admin" class="text-ink-soft hover:text-gold-dark">← Nazad na kategorije</a>
+  <h1 class="mt-4 font-display text-3xl">Nova kategorija</h1>
+
+  <div class="mt-8">
+    <CategoryForm
+      client:load
+      defaultValues={{
+        name: "",
+        slug: "",
+        description: null,
+        headerImage: "",
+        isPublished: true,
+        gallery: [],
+      }}
+    />
+  </div>
+</AdminLayout>

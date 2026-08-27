@@ -1,0 +1,64 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  # Ručno pokretanje iz Actions taba, npr. za ponovni deploy bez novog commita.
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/stipica19/web-toka
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # Uz `latest` ide i tag sa SHA commita — po njemu se u sekundi vraća
+          # prethodna verzija ako novi deploy nešto pokvari (vidi DEPLOY.md).
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          # Keš između pokretanja — npm ci i Astro build se ne ponavljaju bez potrebe.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GHCR_TOKEN,GHCR_USER
+          script: |
+            set -e
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            cd ~/apps/toka
+            docker compose pull
+            # Migracije se primjenjuju automatski pri startu (docker-entrypoint.sh).
+            docker compose up -d
+            docker image prune -f

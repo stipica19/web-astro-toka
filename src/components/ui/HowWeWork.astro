@@ -1,0 +1,60 @@
+---
+import { MessageSquare, PenTool, Hammer, PackageCheck } from "@lucide/astro";
+
+const steps = [
+  {
+    icon: MessageSquare,
+    title: "Upit",
+    text: "Javite nam šta vam treba - pozivom, WhatsAppom ili mailom.",
+  },
+  {
+    icon: PenTool,
+    title: "Dizajn",
+    text: "Pripremimo prijedlog teksta, logoa i materijala na potvrdu.",
+  },
+  {
+    icon: Hammer,
+    title: "Izrada",
+    text: "Graviramo i izrađujemo predmet u vlastitoj radionici.",
+  },
+  {
+    icon: PackageCheck,
+    title: "Preuzimanje",
+    text: "Preuzmete u Bugojnu ili dogovorimo dostavu.",
+  },
+];
+---
+
+<section
+  id="kako-radimo"
+  class="border-b border-line bg-surface py-20 sm:py-24"
+>
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Kako radimo</p>
+      <h2 class="mt-4 text-3xl uppercase tracking-wide sm:text-4xl">
+        Od ideje do gotovog predmeta.
+      </h2>
+      <p class="mt-5 text-lg text-ink-soft">
+        Jednostavan proces - vi nam pošaljete ideju, mi se pobrinemo za ostalo.
+      </p>
+    </div>
+
+    <ol class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        steps.map((step, index) => (
+          <li>
+            <div class="flex size-12 items-center justify-center rounded-full bg-cream text-gold-dark">
+              <step.icon class="size-6" aria-hidden="true" />
+            </div>
+            <p class="eyebrow mt-5" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </p>
+            <h3 class="mt-1 text-xl uppercase tracking-wide">{step.title}</h3>
+            <p class="mt-2 text-ink-soft">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

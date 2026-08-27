@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/*
+  Paleta je svijetla i topla, po uzoru na nova.toka.ba: krem podloga,
+  tamno "mastilo" za tekst i zlatni akcent za pozive na akciju.
+  Nazivi su semantički (ink, cream, gold) da promjena nijanse ne traži
+  prepravljanje klasa po cijelom sajtu.
+*/
+@theme {
+  --color-cream: #f8f4ed;
+  --color-surface: #fffdf9;
+  --color-ink: #221e1a;
+  --color-ink-soft: #5c554c;
+  --color-gold: #c8a044;
+  --color-gold-dark: #a9832f;
+  --color-line: #e5dccb;
+
+  --font-display: var(--font-display-family), Georgia, serif;
+  --font-body: var(--font-body-family), system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    /* Sidebar nav vodi na sidrišta (#kategorije, #kontakt) na istoj stranici. */
+    scroll-behavior: smooth;
+    /* Sidrišta ne smiju završiti ispod ljepljivog headera. */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    /* CLAUDE.md: minimalno 16px, nikad manje. */
+    font-size: 1rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  /* Dok je modal galerije otvoren, stranica ispod ne skrola. */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  /* Vidljiv fokus za tastaturu — nasljeđeni outline nestaje na tamnim podlogama. */
+  :focus-visible {
+    outline: 2px solid var(--color-gold-dark);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* Nadnaslov iznad velikih naslova ("ŠTA IZRAĐUJEMO"). */
+@utility eyebrow {
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+}

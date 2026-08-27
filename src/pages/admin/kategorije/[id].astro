@@ -1,0 +1,43 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CategoryForm from "../../../components/admin/CategoryForm.tsx";
+import { prisma } from "../../../lib/prisma";
+
+export const prerender = false;
+
+const { id } = Astro.params;
+
+const category = await prisma.category.findUnique({
+  where: { id: id! },
+  include: { gallery: { orderBy: { order: "asc" } } },
+});
+
+if (!category) {
+  return Astro.redirect("/admin");
+}
+---
+
+<AdminLayout title={`Uredi ${category.name}`}>
+  <a href="/admin" class="text-ink-soft hover:text-gold-dark">← Nazad na kategorije</a>
+  <h1 class="mt-4 font-display text-3xl">{category.name}</h1>
+  <p class="mt-1 text-ink-soft">/kategorija/{category.slug}</p>
+
+  <div class="mt-8">
+    <CategoryForm
+      client:load
+      categoryId={category.id}
+      defaultValues={{
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        headerImage: category.headerImage,
+        isPublished: category.isPublished,
+        gallery: category.gallery.map((image) => ({
+          url: image.url,
+          // Alt je u bazi opcionalan (stari zapisi), forma ga traži.
+          alt: image.alt ?? "",
+        })),
+      }}
+    />
+  </div>
+</AdminLayout>

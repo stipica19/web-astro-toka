@@ -1,0 +1,46 @@
+---
+import { Plus } from "@lucide/astro";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import CategoryList from "../../components/admin/CategoryList.tsx";
+import { prisma } from "../../lib/prisma";
+
+export const prerender = false;
+
+// Prvi prikaz dolazi sa servera; island ga preuzima kao initialData,
+// pa lista ne "trepne" prazna prije nego se JS učita.
+const categories = await prisma.category.findMany({
+  orderBy: { order: "asc" },
+  select: {
+    id: true,
+    name: true,
+    slug: true,
+    headerImage: true,
+    isPublished: true,
+    order: true,
+    _count: { select: { gallery: true } },
+  },
+});
+---
+
+<AdminLayout title="Kategorije">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="font-display text-3xl">Kategorije</h1>
+      <p class="mt-1 text-ink-soft">
+        {categories.length} kategorija · prevuci za promjenu redoslijeda na sajtu
+      </p>
+    </div>
+
+    <a
+      href="/admin/kategorije/nova"
+      class="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-3 font-medium text-ink transition-colors hover:bg-gold-dark"
+    >
+      <Plus class="size-5" aria-hidden="true" />
+      Nova kategorija
+    </a>
+  </div>
+
+  <div class="mt-8">
+    <CategoryList initialData={categories} client:load />
+  </div>
+</AdminLayout>

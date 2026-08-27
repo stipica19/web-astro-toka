@@ -1,0 +1,97 @@
+---
+import { Font } from "astro:assets";
+import { site } from "../lib/site";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Cloudinary public_id ili apsolutni URL slike za dijeljenje na društvenim mrežama. */
+  ogImage?: string;
+  /**
+   * Slike koje su LCP element stranice. Preload ih stavlja u kritičnu putanju,
+   * pa browser kreće po njih odmah, a ne tek kad parser dođe do <img>.
+   */
+  preloadImages?: Array<{ media: string; srcset: string; sizes: string }>;
+}
+
+const { title, description, ogImage, preloadImages = [] } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// LocalBusiness strukturirani podaci — isti NAP kao u footeru i na Google profilu.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: site.name,
+  legalName: site.legalName,
+  description: site.description,
+  url: Astro.site?.toString(),
+  telephone: site.phoneRaw,
+  email: site.email,
+  foundingDate: String(site.foundedYear),
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: site.address.street,
+    postalCode: site.address.postalCode,
+    addressLocality: site.address.city,
+    addressCountry: site.address.countryCode,
+  },
+};
+---
+
+<!doctype html>
+<html lang="bs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical.href} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="bs_BA" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+
+    {/*
+      Astro hostuje fontove sa vlastitog domena i ubacuje preload — bez skoka teksta.
+      Preload je sužen na rezinu 400: ostale težine bi bile dodatni fajlovi u
+      kritičnoj putanji, a browser ih ionako povuče tek ako zatrebaju.
+    */}
+    <Font cssVariable="--font-display-family" preload={[{ weight: 400 }]} />
+    <Font cssVariable="--font-body-family" preload={[{ weight: 400 }]} />
+
+    {
+      /* `media` osigurava da mobitel preloada samo svoj kadar, a ne oba. */
+      preloadImages.map((image) => (
+        <link
+          rel="preload"
+          as="image"
+          media={image.media}
+          imagesrcset={image.srcset}
+          imagesizes={image.sizes}
+          fetchpriority="high"
+        />
+      ))
+    }
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+  </head>
+
+  <body>
+    <a
+      href="#sadrzaj"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-cream"
+    >
+      Preskoči na sadržaj
+    </a>
+    <slot />
+  </body>
+</html>

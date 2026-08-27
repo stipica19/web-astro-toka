@@ -1,0 +1,92 @@
+---
+import { MapPin, Phone, Mail } from "@lucide/astro";
+import { site, fullAddress } from "../../lib/site";
+
+interface Props {
+  categories: Array<{ name: string; slug: string }>;
+}
+
+const { categories } = Astro.props;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t border-line bg-cream">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <div class="grid gap-12 lg:grid-cols-[1fr_1fr_1fr]">
+      <div>
+        <img
+          src="/logo.png"
+          alt={site.name}
+          width="257"
+          height="92"
+          class="h-7 w-auto invert sm:h-8"
+          decoding="async"
+        />
+        <p class="mt-4 max-w-xs text-ink-soft">{site.description}</p>
+      </div>
+
+      <nav aria-labelledby="footer-kategorije">
+        <p id="footer-kategorije" class="eyebrow">Kategorije</p>
+        <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+          {
+            categories.map((category) => (
+              <li>
+                <a
+                  href={`/kategorija/${category.slug}`}
+                  class="text-ink-soft transition-colors hover:text-gold-dark"
+                >
+                  {category.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div>
+        <p class="eyebrow">Kontakt</p>
+        {
+          /* Isti NAP kao u JSON-LD strukturiranim podacima i na Google profilu. */
+        }
+        <address class="mt-4 space-y-3 not-italic text-ink-soft">
+          <p class="flex items-start gap-2.5">
+            <MapPin
+              class="mt-1 size-5 shrink-0 text-gold-dark"
+              aria-hidden="true"
+            />
+            <span>{fullAddress}</span>
+          </p>
+          <p class="flex items-start gap-2.5">
+            <Phone
+              class="mt-1 size-5 shrink-0 text-gold-dark"
+              aria-hidden="true"
+            />
+            <a
+              href={`tel:${site.phoneRaw}`}
+              class="transition-colors hover:text-gold-dark"
+            >
+              {site.phone}
+            </a>
+          </p>
+          <p class="flex items-start gap-2.5">
+            <Mail
+              class="mt-1 size-5 shrink-0 text-gold-dark"
+              aria-hidden="true"
+            />
+            <a
+              href={`mailto:${site.email}`}
+              class="transition-colors hover:text-gold-dark"
+            >
+              {site.email}
+            </a>
+          </p>
+        </address>
+      </div>
+    </div>
+
+    <p class="mt-12 border-t border-line pt-6 text-ink-soft">
+      © {currentYear}
+      {site.legalName}. Sva prava zadržana.
+    </p>
+  </div>
+</footer>

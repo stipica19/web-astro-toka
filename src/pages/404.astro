@@ -1,0 +1,37 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
+import { getPublishedCategories } from "../lib/categories";
+
+// Navigacija u headeru i footeru dolazi iz baze, pa i ova stranica ide SSR.
+export const prerender = false;
+
+// Bez ovoga bi stranica na koju se preusmjeri nepostojeća kategorija vratila
+// status 200 ("soft 404"), što Google tretira kao grešku.
+Astro.response.status = 404;
+
+const categories = await getPublishedCategories();
+---
+
+<Layout title="Stranica nije pronađena — Toka" description="Tražena stranica ne postoji.">
+  <Header categories={categories} />
+
+  <main id="sadrzaj" class="mx-auto max-w-3xl px-5 py-28 text-center">
+    <p class="eyebrow">404</p>
+    <h1 class="mt-4 text-3xl uppercase tracking-wide sm:text-4xl">
+      Ova stranica ne postoji.
+    </h1>
+    <p class="mt-5 text-lg text-ink-soft">
+      Možda je premještena ili je link pogrešan. Pogledajte ponudu po kategorijama.
+    </p>
+    <a
+      href="/#kategorije"
+      class="mt-8 inline-flex rounded-full bg-gold px-7 py-3.5 font-medium text-ink transition-colors hover:bg-gold-dark"
+    >
+      Nazad na ponudu
+    </a>
+  </main>
+
+  <Footer categories={categories} />
+</Layout>

@@ -1,0 +1,22 @@
+# Instalira se u slici (npm ci), ne kopira se sa hosta.
+node_modules
+
+# Rezultat builda i keš — grade se iznova unutar slike.
+dist
+.astro
+src/generated
+
+# Tajne NIKAD ne smiju ući u build context (vidi komentar u Dockerfile-u).
+.env
+.env.*
+!.env.example
+
+.git
+.github
+.vscode
+.idea
+.claude
+.cursor
+.devin
+.agents
+*.md

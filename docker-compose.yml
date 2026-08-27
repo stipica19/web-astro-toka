@@ -1,0 +1,46 @@
+# Ovaj fajl stoji na VPS-u, u ~/apps/toka/, zajedno sa .env fajlom.
+# U repozitoriju je da bi obje strane bile na istoj verziji.
+
+services:
+  app:
+    # `IMAGE_TAG=<sha> docker compose up -d` vraća stariju verziju bez diranja
+    # ovog fajla — svaki deploy objavi i tag sa SHA commita.
+    image: ghcr.io/stipica19/web-toka:${IMAGE_TAG:-latest}
+    container_name: toka
+    restart: unless-stopped
+
+    # Sve tajne dolaze odavde, iz runtimea — u slici ih nema.
+    env_file: .env
+
+    ports:
+      # Vezano na 127.0.0.1, ne na 0.0.0.0: aplikacija nije direktno dostupna
+      # sa interneta, ispred nje stoji nginx/Caddy koji radi HTTPS.
+      - "127.0.0.1:4321:4321"
+
+    extra_hosts:
+      # Postgres je instaliran direktno na serveru, izvan Dockera. Kontejner
+      # ima svoj `localhost`, pa se host mašina dohvaća preko ovog imena —
+      # u DATABASE_URL ide `@host.docker.internal:5432`.
+      - "host.docker.internal:host-gateway"
+
+    healthcheck:
+      # Početna stranica ide u bazu, pa ovaj test pokriva i aplikaciju i vezu
+      # prema Postgresu.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4321/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    logging:
+      # Bez ovoga logovi na VPS-u rastu bez ograničenja.
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

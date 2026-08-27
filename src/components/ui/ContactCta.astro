@@ -1,0 +1,46 @@
+---
+import { MessageCircle, Phone } from "@lucide/astro";
+import { site, whatsappLink } from "../../lib/site";
+
+interface Props {
+  /** Naziv kategorije se ubacuje u WhatsApp poruku kad se sekcija koristi na stranici kategorije. */
+  subject?: string;
+}
+
+const { subject } = Astro.props;
+---
+
+<section id="kontakt" class="bg-surface py-20 sm:py-24">
+  <div class="mx-auto max-w-3xl px-5 text-center">
+    <p class="eyebrow">Kontaktirajte nas</p>
+    <h2 class="mt-4 text-3xl uppercase tracking-wide sm:text-4xl">
+      Pošaljite upit i dobijte odgovor u roku od 24 sata.
+    </h2>
+
+    <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a
+        href={whatsappLink(subject)}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-3.5 font-medium text-ink transition-colors hover:bg-gold-dark sm:w-auto"
+      >
+        <MessageCircle class="size-5" aria-hidden="true" />
+        WhatsApp upit
+      </a>
+
+      <a
+        href={`tel:${site.phoneRaw}`}
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-ink/20 px-7 py-3.5 font-medium text-ink transition-colors hover:border-ink/40 hover:bg-cream sm:w-auto"
+      >
+        <Phone class="size-5" aria-hidden="true" />
+        {site.phone}
+      </a>
+    </div>
+
+    <p class="mt-8 text-ink-soft">
+      Ili nam pišite na <a
+        href={`mailto:${site.email}`}
+        class="text-gold-dark underline underline-offset-4">{site.email}</a>
+    </p>
+  </div>
+</section>

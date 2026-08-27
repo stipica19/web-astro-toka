@@ -1,0 +1,177 @@
+---
+import { ChevronLeft, ChevronRight } from "@lucide/astro";
+import CategoryImage from "./CategoryImage.astro";
+import { cloudinaryUrl, cloudinarySrcSet } from "../../lib/cloudinary";
+import { PLACEHOLDER_IMAGE } from "../../lib/images";
+
+interface Props {
+  name: string;
+  slug: string;
+  description: string | null;
+  headerImage: string;
+  gallery: Array<{ url: string; alt: string | null }>;
+}
+
+// `description` se ne prikazuje u galeriji, ali ostaje u Props jer ga
+// CategoryGrid prosljeđuje zajedno s ostalim podacima kategorije.
+const { name, slug, headerImage, gallery } = Astro.props;
+
+const dialogId = `galerija-${slug}`;
+
+const hasHeaderImage =
+  Boolean(headerImage) && headerImage !== PLACEHOLDER_IMAGE;
+
+// Slajdovi dolaze iz galerije; dok je ona prazna, header slika je jedini slajd
+// da modal ne bude prazan. Ako ni nje nema, ispod ide prazno stanje.
+const slides =
+  gallery.length > 0
+    ? gallery.map((image) => ({ url: image.url, alt: image.alt ?? name }))
+    : hasHeaderImage
+      ? [{ url: headerImage, alt: name }]
+      : [];
+
+const hasMultiple = slides.length > 1;
+---
+
+{
+  /*
+  Native <dialog> nosi zatvaranje na Escape, zarobljavanje fokusa i backdrop
+  bez ijedne linije našeg koda — otud je izabran umjesto ručno pravljenog modala.
+
+  `m-auto` je obavezan: Tailwind preflight postavlja `margin: 0` na sve elemente,
+  čime ubija `margin: auto` kojim browser centrira modalni <dialog>.
+
+  Namjerno se NE stavlja `flex` na sam <dialog>: to bi pregazilo `display: none`
+  koji browser daje zatvorenom dijalogu i modal bi bio stalno vidljiv. Raspored
+  drži unutrašnji wrapper.
+*/
+}
+<dialog
+  id={dialogId}
+  data-gallery-dialog
+  aria-label={`Galerija: ${name}`}
+  class="m-auto w-[min(64rem,94vw)] max-w-none overflow-hidden rounded-lg border border-line bg-surface p-0 text-ink backdrop:bg-black/80"
+>
+  <div class="flex max-h-[92vh] flex-col">
+    {
+      slides.length > 0 ? (
+        <>
+          {/*
+            Traka slajdova: horizontalni scroll sa snap tačkama. Prevlačenje
+            prstom i inercija dolaze od browsera, strelice samo skrolaju traku —
+            nema JS animacije ni biblioteke.
+
+            Visina je fiksna (`h-[...]`), a slika je `object-contain`, pa se
+            slajdovi različitih omjera prikazuju cijeli i bez pomjeranja layouta.
+            `shrink` dozvoljava da se scena stisne kad na niskom ekranu sve
+            zajedno pređe `max-h-[92vh]`.
+          */}
+          <div class="relative min-h-0 shrink bg-cream">
+            <div
+              data-gallery-track
+              class="flex h-[min(58vh,30rem)] snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] motion-reduce:scroll-auto [&::-webkit-scrollbar]:hidden"
+            >
+              {slides.map((slide) => (
+                <div class="h-full w-full shrink-0 snap-center">
+                  {/*
+                    `loading="lazy"` na SVIM slajdovima je namjerno: zatvoren
+                    dijalog je `display: none`, pa se nijedna slika ne povlači
+                    dok posjetilac ne otvori galeriju. Sa `eager` bi početna
+                    stranica odmah povukla prvu sliku svake od 12 kategorija.
+                  */}
+                  <img
+                    src={cloudinaryUrl(slide.url, { width: 1200 })}
+                    srcset={cloudinarySrcSet(slide.url)}
+                    sizes="(min-width: 1024px) 60rem, 94vw"
+                    alt={slide.alt}
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-contain p-3 sm:p-4"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {hasMultiple && (
+              <>
+                <button
+                  type="button"
+                  data-gallery-prev
+                  aria-label="Prethodna slika"
+                  class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-line bg-surface/90 p-2 text-ink shadow-sm transition-colors hover:bg-surface disabled:invisible sm:p-3"
+                >
+                  <ChevronLeft class="size-6" aria-hidden="true" />
+                </button>
+
+                <button
+                  type="button"
+                  data-gallery-next
+                  aria-label="Sljedeća slika"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-line bg-surface/90 p-2 text-ink shadow-sm transition-colors hover:bg-surface disabled:invisible sm:p-3"
+                >
+                  <ChevronRight class="size-6" aria-hidden="true" />
+                </button>
+
+                <p
+                  data-gallery-counter
+                  aria-live="polite"
+                  class="absolute bottom-3 right-3 rounded-full bg-ink/75 px-3 py-1 text-white"
+                >
+                  1 / {slides.length}
+                </p>
+              </>
+            )}
+          </div>
+
+          {hasMultiple && (
+            <div class="shrink-0 border-t border-line px-5 py-2 sm:px-6">
+              {/* `p-1` ostavlja mjesta prstenu oko aktivne sličice da ga scroll ne odsiječe. */}
+              <ul
+                data-gallery-thumbs
+                class="flex gap-2 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {slides.map((slide, index) => (
+                  <li class="shrink-0">
+                    <button
+                      type="button"
+                      data-gallery-thumb
+                      aria-label={`Prikaži sliku ${index + 1}`}
+                      class="block size-16 overflow-hidden rounded border border-line opacity-60 transition-opacity hover:opacity-100"
+                    >
+                      <img
+                        src={cloudinaryUrl(slide.url, {
+                          width: 160,
+                          aspectRatio: "1:1",
+                        })}
+                        srcset={`${cloudinaryUrl(slide.url, { width: 160, aspectRatio: "1:1" })} 1x, ${cloudinaryUrl(slide.url, { width: 320, aspectRatio: "1:1" })} 2x`}
+                        alt=""
+                        width="160"
+                        height="160"
+                        loading="lazy"
+                        decoding="async"
+                        class="size-full object-cover"
+                      />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      ) : (
+        <div class="px-5 py-6 sm:px-6">
+          <CategoryImage
+            publicId={headerImage}
+            alt={name}
+            ratio="16:9"
+            sizes="92vw"
+          />
+          <p class="mt-4 text-ink-soft">
+            Galerija za ovu kategoriju se uskoro dopunjuje. Za primjere i ponudu
+            javite se putem WhatsAppa.
+          </p>
+        </div>
+      )
+    }
+  </div>
+</dialog>

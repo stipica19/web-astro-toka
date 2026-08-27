@@ -1,0 +1,89 @@
+---
+import { Anvil, Signature, Gem } from "@lucide/astro";
+
+const values = [
+  {
+    icon: Anvil,
+    title: "Tradicija",
+    text: "Toka je radionica iz Bugojna koja već godinama njeguje ljubav prema kreativnosti, detaljima i ručnom radu. Svakom proizvodu pristupamo pažljivo, s ciljem da bude poseban baš za vas.",
+    featured: false,
+  },
+  {
+    icon: Signature,
+    title: "Personalizacija",
+    text: "Vaše ideje pretvaramo u jedinstvene proizvode. Graviranje imena, poruka, datuma i posebnih detalja omogućava da svaki poklon nosi ličnu priču i uspomenu.",
+    // Srednja kartica je tamna i podignuta — ona razbija dojam tri ista boxa.
+    featured: true,
+  },
+  {
+    icon: Gem,
+    title: "Kvalitet",
+    text: "Biramo kvalitetne materijale i posvećujemo pažnju svakom detalju izrade. Od prve ideje do gotovog proizvoda, trudimo se da rezultat bude nešto što ćete s ponosom pokloniti ili sačuvati.",
+    featured: false,
+  },
+];
+---
+
+<section id="vrijednosti" class="border-b border-line py-20 sm:py-24">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Zašto Toka</p>
+      <h2 class="mt-4 text-3xl uppercase tracking-wide sm:text-4xl">
+        Ručni rad, vaša priča i materijal koji traje.
+      </h2>
+    </div>
+
+    <ul class="mt-12 grid gap-6 lg:grid-cols-3">
+      {
+        values.map((value, index) => (
+          <li
+            class:list={[
+              "relative overflow-hidden rounded-2xl border p-8 transition duration-300",
+              value.featured
+                ? "border-ink bg-ink text-cream shadow-lg hover:shadow-xl lg:-translate-y-8 lg:p-10"
+                : "border-line bg-surface hover:border-gold/50 hover:shadow-md",
+            ]}
+          >
+            {/*
+              Veliki broj u pozadini daje karticama ritam bez dodatnog teksta.
+              Apsolutno pozicioniran element se crta iznad sadržaja u normalnom
+              toku, pa ikona, naslov i tekst ispod dobijaju `relative` — inače
+              bi im brojka prelazila preko.
+            */}
+            <span
+              class:list={[
+                "pointer-events-none absolute -right-3 -top-5 font-display text-8xl leading-none",
+                value.featured ? "text-cream/10" : "text-ink/[0.06]",
+              ]}
+              aria-hidden="true"
+            >
+              {String(index + 1).padStart(2, "0")}
+            </span>
+
+            <div
+              class:list={[
+                "relative flex size-12 items-center justify-center rounded-xl",
+                value.featured ? "bg-cream/10 text-gold" : "bg-cream text-gold-dark",
+              ]}
+            >
+              <value.icon class="size-6" aria-hidden="true" />
+            </div>
+
+            <h3 class="relative mt-6 font-display text-xl uppercase tracking-wide">
+              {value.title}
+            </h3>
+
+            <p
+              class:list={[
+                "relative mt-3",
+                value.featured ? "text-cream/75" : "text-ink-soft",
+              ]}
+            >
+              {value.text}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

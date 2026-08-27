@@ -1,0 +1,165 @@
+---
+import { LayoutGrid, Plus, Menu, X, ExternalLink } from "@lucide/astro";
+import LogoutButton from "../components/admin/LogoutButton.tsx";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  /** Stranica za prijavu nema ni sidebar ni odjavu. */
+  bare?: boolean;
+}
+
+const { title, bare = false } = Astro.props;
+const user = Astro.locals.user;
+
+const pathname = Astro.url.pathname;
+const isNewCategory = pathname === "/admin/kategorije/nova";
+
+// Stranica za uređivanje (/admin/kategorije/<id>) pripada pregledu kategorija,
+// pa i tamo ostaje označena ista stavka u meniju.
+const navItems = [
+  {
+    label: "Kategorije",
+    href: "/admin",
+    icon: LayoutGrid,
+    active: !isNewCategory,
+  },
+  {
+    label: "Nova kategorija",
+    href: "/admin/kategorije/nova",
+    icon: Plus,
+    active: isNewCategory,
+  },
+];
+
+const navLinkBase =
+  "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors";
+const navLinkIdle = "text-cream/70 hover:bg-white/10 hover:text-cream";
+const navLinkActive = "bg-white/10 text-cream";
+---
+
+<!doctype html>
+<html lang="bs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* Admin nikad ne smije završiti u rezultatima pretrage. */}
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — Toka admin</title>
+  </head>
+
+  <body class="min-h-screen bg-cream text-ink">
+    {
+      bare ? (
+        <main class="mx-auto max-w-5xl px-5 py-10">
+          <slot />
+        </main>
+      ) : (
+        <>
+          {/*
+            Otvaranje sidebara na mobitelu ide preko skrivenog checkboxa umjesto
+            skripte: `peer-checked:` varijante rade samo nad SUSJEDIMA inputa,
+            pa sidebar, zatamnjenje i mobilna traka moraju ostati na ovom nivou.
+            Input je `sr-only` (a ne `hidden`) da ostane dohvatljiv tastaturom.
+          */}
+          <input
+            id="admin-nav"
+            type="checkbox"
+            class="peer sr-only"
+            aria-label="Prikaži bočni meni"
+          />
+
+          <aside class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-ink text-cream transition-transform duration-200 peer-checked:translate-x-0 motion-reduce:transition-none lg:translate-x-0">
+            <div class="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-5">
+              <a href="/admin" class="flex items-center gap-3">
+                {/*
+                  logo.png je bijeli znak na prozirnoj podlozi — zato je sidebar
+                  taman: logo se koristi kakav jeste, bez filtera i druge verzije.
+                */}
+                <img
+                  src="/logo.png"
+                  alt="Toka"
+                  width="257"
+                  height="92"
+                  class="h-8 w-auto"
+                />
+                <span class="text-cream/50">admin</span>
+              </a>
+
+              {/* Zatvaranje sidebara na mobitelu; na desktopu je uvijek otvoren. */}
+              <label
+                for="admin-nav"
+                class="-mr-2 cursor-pointer rounded-lg p-2 text-cream/70 transition-colors hover:bg-white/10 hover:text-cream lg:hidden"
+                aria-hidden="true"
+              >
+                <X class="size-5" />
+              </label>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto p-3" aria-label="Admin navigacija">
+              <ul class="space-y-1">
+                {navItems.map(({ label, href, icon: Icon, active }) => (
+                  <li>
+                    <a
+                      href={href}
+                      aria-current={active ? "page" : undefined}
+                      class:list={[navLinkBase, active ? navLinkActive : navLinkIdle]}
+                    >
+                      <Icon class="size-5 shrink-0" aria-hidden="true" />
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div class="border-t border-white/10 p-3">
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener"
+                class:list={[navLinkBase, navLinkIdle]}
+              >
+                <ExternalLink class="size-5 shrink-0" aria-hidden="true" />
+                Pogledaj sajt
+              </a>
+
+              {user && (
+                <p class="truncate px-3 pb-1 pt-3 text-cream/50" title={user.email}>
+                  {user.email}
+                </p>
+              )}
+
+              <LogoutButton client:load />
+            </div>
+          </aside>
+
+          {/* Klik na zatamnjenu podlogu zatvara sidebar na mobitelu. */}
+          <label
+            for="admin-nav"
+            class="fixed inset-0 z-30 hidden bg-ink/50 peer-checked:block lg:peer-checked:hidden"
+            aria-hidden="true"
+          ></label>
+
+          <header class="sticky top-0 z-20 flex items-center gap-2 border-b border-line bg-surface px-4 py-3 lg:hidden">
+            <label
+              for="admin-nav"
+              class="cursor-pointer rounded-lg p-2 text-ink-soft transition-colors hover:bg-cream hover:text-ink peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold-dark"
+              aria-hidden="true"
+            >
+              <Menu class="size-6" />
+            </label>
+            <span class="truncate font-display text-xl">{title}</span>
+          </header>
+
+          <div class="lg:pl-64">
+            <main class="mx-auto max-w-5xl px-5 py-8 lg:py-10">
+              <slot />
+            </main>
+          </div>
+        </>
+      )
+    }
+  </body>
+</html>
