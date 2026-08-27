@@ -5,7 +5,7 @@ services:
   app:
     # `IMAGE_TAG=<sha> docker compose up -d` vraća stariju verziju bez diranja
     # ovog fajla — svaki deploy objavi i tag sa SHA commita.
-    image: ghcr.io/stipica19/web-toka:${IMAGE_TAG:-latest}
+    image: ghcr.io/stipica19/web-astro-toka:${IMAGE_TAG:-latest}
     container_name: toka
     restart: unless-stopped
 
