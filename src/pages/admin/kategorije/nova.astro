@@ -1,6 +1,7 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import CategoryForm from "../../../components/admin/CategoryForm.tsx";
+import { getCloudName } from "../../../lib/cloudinary";
 
 export const prerender = false;
 ---
@@ -12,6 +13,7 @@ export const prerender = false;
   <div class="mt-8">
     <CategoryForm
       client:load
+      cloudName={getCloudName()}
       defaultValues={{
         name: "",
         slug: "",

@@ -252,5 +252,6 @@ nekoliko milisekundi po zahtjevu.
 | Prijava u admin ne prolazi, a lozinka je tačna | nedostaje HTTPS ili `X-Forwarded-Proto` u reverse proxyju (korak 5)        |
 | `DATABASE_URL nije postavljen`                 | `.env` nije pored `docker-compose.yml` ili nije naveden u `env_file`       |
 | Slike se ne prikazuju                          | `PUBLIC_CLOUDINARY_CLOUD_NAME` nije u `.env` na serveru                    |
+| `PUBLIC_CLOUDINARY_CLOUD_NAME nije postavljen` | ista varijabla — `PUBLIC_*` se ne ugrađuje u sliku, čita se u runtimeu     |
 | `Invalid base URL` u logovima                  | vrijednosti u `.env` su pod navodnicima (korak 2)                          |
 | Deploy prođe, ali sajt je stari                | `image:` u compose fajlu ne odgovara `IMAGE` iz workflowa                  |

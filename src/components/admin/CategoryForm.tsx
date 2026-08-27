@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, type UseFormRegister } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DndContext,
@@ -19,15 +19,24 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, ImagePlus, Loader2, Save, Trash2 } from "lucide-react";
 import { actions } from "astro:actions";
-import { categoryInputSchema, type CategoryInput } from "../../lib/schemas";
+import {
+  categoryInputSchema,
+  type CategoryFormInput,
+  type CategoryInput,
+} from "../../lib/schemas";
 import { slugify } from "../../lib/slugify";
-import { cloudinaryUrl } from "../../lib/cloudinary";
+import { cloudinaryUrlFor } from "../../lib/cloudinary";
 import { useCloudinaryUpload } from "./useCloudinaryUpload";
 
 type Props = {
   /** Bez id-a je forma za novu kategoriju. */
   categoryId?: string;
   defaultValues: CategoryInput;
+  /**
+   * Stiže sa servera jer klijentski bundle nema pristup .env-u — vidi
+   * komentar uz `getCloudName()` u lib/cloudinary.ts.
+   */
+  cloudName: string;
 };
 
 const inputClass =
@@ -37,6 +46,7 @@ function GalleryItem({
   id,
   index,
   publicId,
+  cloudName,
   register,
   errorMessage,
   onRemove,
@@ -44,7 +54,8 @@ function GalleryItem({
   id: string;
   index: number;
   publicId: string;
-  register: ReturnType<typeof useForm<CategoryInput>>["register"];
+  cloudName: string;
+  register: UseFormRegister<CategoryFormInput>;
   errorMessage?: string;
   onRemove: () => void;
 }) {
@@ -68,7 +79,7 @@ function GalleryItem({
         </button>
 
         <img
-          src={cloudinaryUrl(publicId, { width: 160, aspectRatio: "1:1" })}
+          src={cloudinaryUrlFor(cloudName, publicId, { width: 160, aspectRatio: "1:1" })}
           alt=""
           width={80}
           height={80}
@@ -100,13 +111,17 @@ function GalleryItem({
   );
 }
 
-export default function CategoryForm({ categoryId, defaultValues }: Props) {
+export default function CategoryForm({ categoryId, defaultValues, cloudName }: Props) {
   const [formError, setFormError] = useState<string | null>(null);
   // Kad admin ručno dira slug, prestajemo ga generisati iz naziva.
   const slugTouched = useRef(Boolean(categoryId));
 
   const { upload, uploading, error: uploadError } = useCloudinaryUpload();
 
+  // Tri generika jer shema ima `.transform()`: polja drže `CategoryFormInput`
+  // (description smije biti i undefined), a `handleSubmit` dobije već
+  // transformisani `CategoryInput`. Sa jednim generikom se tipovi resolvera i
+  // forme razilaze, pa TS prijavi grešku na `resolver`.
   const {
     register,
     handleSubmit,
@@ -114,7 +129,7 @@ export default function CategoryForm({ categoryId, defaultValues }: Props) {
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<CategoryInput>({
+  } = useForm<CategoryFormInput, unknown, CategoryInput>({
     resolver: zodResolver(categoryInputSchema),
     defaultValues,
   });
@@ -215,7 +230,7 @@ export default function CategoryForm({ categoryId, defaultValues }: Props) {
         <div className="mt-3 flex flex-wrap items-center gap-4">
           {headerImage ? (
             <img
-              src={cloudinaryUrl(headerImage, { width: 320, aspectRatio: "4:3" })}
+              src={cloudinaryUrlFor(cloudName, headerImage, { width: 320, aspectRatio: "4:3" })}
               alt=""
               width={160}
               height={120}
@@ -277,6 +292,7 @@ export default function CategoryForm({ categoryId, defaultValues }: Props) {
                     id={field.id}
                     index={index}
                     publicId={field.url}
+                    cloudName={cloudName}
                     register={register}
                     errorMessage={errors.gallery?.[index]?.alt?.message}
                     onRemove={() => remove(index)}

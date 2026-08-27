@@ -1,6 +1,7 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import CategoryForm from "../../../components/admin/CategoryForm.tsx";
+import { getCloudName } from "../../../lib/cloudinary";
 import { prisma } from "../../../lib/prisma";
 
 export const prerender = false;
@@ -25,6 +26,7 @@ if (!category) {
   <div class="mt-8">
     <CategoryForm
       client:load
+      cloudName={getCloudName()}
       categoryId={category.id}
       defaultValues={{
         name: category.name,

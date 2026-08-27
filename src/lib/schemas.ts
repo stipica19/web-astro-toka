@@ -63,5 +63,16 @@ export const reorderSchema = z.object({
   ids: z.array(z.string().min(1)).min(1),
 });
 
+/**
+ * Rezultat validacije — ono što akcija dobije nakon Zod transformacija
+ * (`description` je tu uvijek `string | null`).
+ */
 export type CategoryInput = z.infer<typeof categoryInputSchema>;
+
+/**
+ * Ono što forma drži PRIJE transformacija (`description` smije biti i
+ * `undefined`). Razlikuje se od `CategoryInput` zbog `.nullish().transform()`
+ * iznad — react-hook-form traži oba tipa, vidi CategoryForm.tsx.
+ */
+export type CategoryFormInput = z.input<typeof categoryInputSchema>;
 export type GalleryImageInput = z.infer<typeof galleryImageSchema>;

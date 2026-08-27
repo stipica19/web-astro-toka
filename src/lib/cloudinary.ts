@@ -56,14 +56,37 @@ function transformations({
   return parts.join(",");
 }
 
-export function cloudinaryUrl(publicId: string, transform: ImageTransform): string {
+/**
+ * Cloud name sa servera, za prosljeđivanje React ostrvima kao prop.
+ *
+ * U browseru nema ni `import.meta.env` ni `process.env`: Vite `PUBLIC_*`
+ * varijable UGRAĐUJE u klijentski bundle tokom builda. Docker sliku gradimo
+ * namjerno bez ijedne varijable (da tajne ne završe u sloju), pa bi ostrvo
+ * koje čita env dobilo `undefined`. Zato vrijednost putuje kroz props —
+ * ista slika radi na bilo kojem Cloudinary nalogu, bez rebuilda.
+ */
+export function getCloudName(): string {
   if (!cloudName) {
     throw new Error(
       "PUBLIC_CLOUDINARY_CLOUD_NAME nije postavljen. Provjeri .env.",
     );
   }
 
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformations(transform)}/${publicId}`;
+  return cloudName;
+}
+
+/** Za klijentski kod, kojem cloud name stiže kao prop. */
+export function cloudinaryUrlFor(
+  cloudNameOverride: string,
+  publicId: string,
+  transform: ImageTransform,
+): string {
+  return `https://res.cloudinary.com/${cloudNameOverride}/image/upload/${transformations(transform)}/${publicId}`;
+}
+
+/** Za serverski kod (.astro stranice), gdje se cloud name čita iz okruženja. */
+export function cloudinaryUrl(publicId: string, transform: ImageTransform): string {
+  return cloudinaryUrlFor(getCloudName(), publicId, transform);
 }
 
 /** Širine za srcset — pokrivaju mobitel, tablet i retina desktop. */
