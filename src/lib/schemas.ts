@@ -13,12 +13,15 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const galleryImageSchema = z.object({
   /** Cloudinary public_id. */
   url: z.string().trim().min(1, "Slika nedostaje."),
-  // CLAUDE.md traži alt tekst na svakoj slici galerije — zbog SEO-a i čitača ekrana.
+  // Alt tekst nije obavezan: prazno polje snimamo kao null, a javna stranica
+  // tada pada na naziv kategorije (vidi kategorija/[slug].astro) — tako slika
+  // nikad ne ostane bez opisa za SEO i čitače ekrana.
   alt: z
     .string()
     .trim()
-    .min(3, "Opis slike mora imati bar 3 znaka.")
-    .max(200, "Opis slike je predugačak."),
+    .max(200, "Opis slike je predugačak.")
+    .nullish()
+    .transform((value) => (value ? value : null)),
 });
 
 export const categoryInputSchema = z.object({

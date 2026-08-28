@@ -88,7 +88,7 @@ function GalleryItem({
 
         <div className="min-w-0 flex-1">
           <label className="block text-ink-soft" htmlFor={`gallery-alt-${index}`}>
-            Opis slike (za pretraživače i čitače ekrana)
+            Opis slike (za pretraživače i čitače ekrana) — nije obavezno
           </label>
           <input
             id={`gallery-alt-${index}`}
@@ -151,7 +151,7 @@ export default function CategoryForm({ categoryId, defaultValues, cloudName }: P
   async function handleGalleryUpload(files: FileList) {
     for (const file of Array.from(files)) {
       const publicId = await upload(file, "gallery");
-      // Alt ostaje prazan namjerno — forma ga traži prije snimanja.
+      // Alt nije obavezan; ako ostane prazan, javna stranica koristi naziv kategorije.
       if (publicId) append({ url: publicId, alt: "" });
     }
   }
