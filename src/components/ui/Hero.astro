@@ -1,10 +1,10 @@
 ---
 import { ArrowRight, MessageCircle, Sparkles } from "@lucide/astro";
 
+import { cloudinaryUrl, cloudinarySrcSet } from "../../lib/cloudinary";
 import { site, whatsappLink } from "../../lib/site";
 
-const heroImage =
-  "https://res.cloudinary.com/stipica/image/upload/f_auto,q_auto,w_1200,c_limit/toka/headers/ejjyjqzthkfji3keei0g";
+const heroImage = "toka/headers/ejjyjqzthkfji3keei0g";
 ---
 
 <section
@@ -16,11 +16,21 @@ const heroImage =
       /* `-scale-x-100` zrcali sliku horizontalno — kadar ostaje isti, samo se
         okrene lijevo-desno. */
     }
+    {
+      /* Ovo je LCP element stranice: `fetchpriority="high"` je jedini način da
+        browser sliku povuče prije ostalih resursa — bez njega slikama daje
+        nizak prioritet dok ne izračuna layout. `srcset` uz to sprječava da
+        mobitel skine kadar od 1200px. */
+    }
     <img
-      src={heroImage}
+      src={cloudinaryUrl(heroImage, { width: 1200 })}
+      srcset={cloudinarySrcSet(heroImage)}
+      sizes="100vw"
       alt=""
       class="h-full w-full -scale-x-100 object-cover object-center"
       loading="eager"
+      fetchpriority="high"
+      decoding="async"
     />
   </div>
 
