@@ -22,14 +22,16 @@ const navLinks = [
     class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4"
   >
     <a href="/" class="shrink-0" aria-label={`${site.name} — početna`}>
-      {/*
+      {
+        /*
         logo.png je bijeli znak na prozirnoj podlozi — isti fajl koristi i
         admin, gdje stoji na tamnom sidebaru. Header je svijetao, pa se ovdje
         obrće filterom umjesto da se održavaju dvije verzije istog logotipa.
 
         `width`/`height` drže omjer prije nego se slika učita, pa nema
         pomjeranja layouta.
-      */}
+      */
+      }
       <img
         src="/logo.png"
         alt={site.name}
@@ -110,10 +112,9 @@ const navLinks = [
     <!-- Mobilna navigacija -->
     <details class="group lg:hidden">
       <summary
-        class="flex cursor-pointer list-none items-center gap-2 rounded-full border border-line px-4 py-2"
+        class="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2"
       >
         <Menu class="size-5" aria-hidden="true" />
-        <span>Meni</span>
       </summary>
       <nav
         class="absolute inset-x-0 top-full max-h-[70vh] overflow-y-auto border-b border-line bg-surface px-5 py-4"
@@ -133,14 +134,14 @@ const navLinks = [
             ))
           }
           <li class="pt-2">
-            <p class="eyebrow px-3 pb-1">Kategorije</p>
+            <p class="eyebrow px-3 pb-1">Proizvodi</p>
             <ul>
               {
                 categories.map((category) => (
                   <li>
                     <a
                       href={`/kategorija/${category.slug}`}
-                      class="block rounded-md px-3 py-2.5 text-ink hover:bg-cream"
+                      class="block rounded-md px-3 py-2 text-ink hover:bg-cream"
                     >
                       {category.name}
                     </a>
