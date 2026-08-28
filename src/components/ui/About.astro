@@ -20,11 +20,13 @@ const capabilities = [
 ---
 
 <section id="o-nama" class="border-b border-line py-20 sm:py-24">
-  {/*
+  {
+    /*
     Kolone namjerno nisu 50/50 — tekst nosi sekciju, panel s podacima je prati.
     `items-start` drži oba bloka uz gornju ivicu, pa raspored ostaje uredan i
     kad se tekst produži.
-  */}
+  */
+  }
   <div
     class="mx-auto grid max-w-6xl gap-14 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-20"
   >
@@ -36,14 +38,17 @@ const capabilities = [
 
       {/* Zlatna linija izdvaja uvodni pasus od ostatka teksta. */}
       <p class="mt-7 border-l-2 border-gold pl-5 text-lg text-ink-soft">
-        {/* Izraz mora ostati u istom redu kao tekst — Astro inače proguta razmak ispred njega. */}
-        Toka je radionica za graviranje i izradu suvenira, aktivna od {site.foundedYear}. godine.
-        Sve radimo sami, od pripreme dizajna do gotovog predmeta.
+        {
+          /* Izraz mora ostati u istom redu kao tekst — Astro inače proguta razmak ispred njega. */
+        }
+        Toka je radionica za graviranje i izradu suvenira, aktivna od {
+          site.foundedYear
+        }. godine. Sve radimo sami, od pripreme dizajna do gotovog predmeta.
       </p>
 
       <p class="mt-6 text-ink-soft">
-        Od jednog poklona po mjeri do serije za cijelu firmu: dimenzije, materijal i dizajn
-        prilagođavamo onome što vam treba.
+        Od jednog poklona po mjeri do serije za cijelu firmu: dimenzije,
+        materijal i dizajn prilagođavamo onome što vam treba.
       </p>
 
       <ul class="mt-8 grid gap-3 sm:grid-cols-2">
@@ -60,25 +65,19 @@ const capabilities = [
       </ul>
     </div>
 
-    {/*
+    {
+      /*
       Podaci nisu četiri iste pločice: godina je najvažnija pa dobija punu
       širinu, zlatnu podlogu i najveći stepen, ostalo je stepenicu niže.
       Tako panel ima hijerarhiju umjesto ravnomjerne mreže.
-    */}
+    */
+    }
     <dl class="grid grid-cols-2 gap-4">
       <div class="col-span-2 rounded-2xl border border-gold/30 bg-gold/10 p-8">
         <dt class="text-ink-soft">Radimo od</dt>
-        <dd class="mt-2 font-display text-6xl leading-none">{site.foundedYear}.</dd>
-      </div>
-
-      <div class="rounded-2xl border border-line bg-surface p-6">
-        <dt class="text-ink-soft">Kategorija</dt>
-        <dd class="mt-2 font-display text-4xl leading-none">{categoryCount}</dd>
-      </div>
-
-      <div class="rounded-2xl border border-line bg-surface p-6">
-        <dt class="text-ink-soft">Radionica</dt>
-        <dd class="mt-2 font-display text-4xl leading-none">Vlastita</dd>
+        <dd class="mt-2 font-display text-6xl leading-none">
+          {site.foundedYear}.
+        </dd>
       </div>
 
       <div
